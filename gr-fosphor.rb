@@ -2,8 +2,8 @@ require "formula"
 
 class GrFosphor < Formula
   homepage "http://sdr.osmocom.org/trac/wiki/fosphor"
-  head "https://gitea.osmocom.org/sdr/gr-fosphor.git",
-    revision: e02a2ea4936324379b02c5a1d4878b2da0961bd9
+  url "https://gitea.osmocom.org/sdr/gr-fosphor.git",
+    revision: "e02a2ea4936324379b02c5a1d4878b2da0961bd9"
 
   option "with-qt", "Build with QT widgets in addition to wxWidgets"
 
@@ -15,13 +15,15 @@ class GrFosphor < Formula
 
   def install
     mkdir "build" do
+      args = std_cmake_args
+
       ENV.append "LDFLAGS", "-Wl,-undefined,dynamic_lookup"
       # Point Python library to existing path or CMake test will fail.
       args = %W[
         -DCMAKE_SHARED_LINKER_FLAGS='-Wl,-undefined,dynamic_lookup'
         -DPYTHON_LIBRARY='#{HOMEBREW_PREFIX}/lib/libgnuradio-runtime.dylib'
         -DFREETYPE2_INCLUDE_DIR_ftheader='#{Formula["freetype"].include}'
-      ] + std_cmake_args
+      ]
       if build.with? "qt"
         qt_prefix = `brew --prefix qt5`
         args << "-DCMAKE_PREFIX_PATH=#{qt_prefix} -DENABLE_QT=ON"
@@ -30,5 +32,8 @@ class GrFosphor < Formula
       system "cmake", "..", *args
       system "make", "install"
     end
+  end
+  test do
+    system "false"
   end
 end
